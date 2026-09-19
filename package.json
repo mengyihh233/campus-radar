@@ -1,0 +1,20 @@
+{
+  "name": "campus-radar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Campus Radar 校园机会雷达 —— 面向在校学生（尤其新生）的校园活动与机会平台，含多角色权限与投稿审核",
+  "scripts": {
+    "start": "edgeone makers dev -n campus-radar",
+    "deploy": "edgeone makers deploy -n campus-radar",
+    "seed": "node tools/gen-seed.mjs",
+    "check": "node tools/check-imports.mjs",
+    "test": "node tools/e2e-test.mjs"
+  },
+  "dependencies": {
+    "@edgeone/pages-blob": "^0.0.14"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

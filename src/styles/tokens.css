@@ -1,0 +1,119 @@
+/* ============================================================================
+   tokens.css — 设计令牌
+   Campus Radar · 深色极客面板风
+   规则：单一主色（琥珀黄）+ 一个次级色（青）；禁止纯黑、霓虹辉光、渐变标题
+   ========================================================================== */
+
+:root {
+  /* ---- 表面层级（由深到浅，均非纯黑）---- */
+  --bg: #0b0e14;
+  --bg-elev: #0f131a;
+  --surface: #131822;
+  --surface-2: #181f2b;
+  --surface-3: #1e2733;
+
+  /* ---- 描边 ---- */
+  --border: #212936;
+  --border-2: #2c3746;
+  --border-3: #3a4759;
+
+  /* ---- 文字 ---- */
+  --text: #dce4f0;
+  --text-2: #919fb4;
+  --text-3: #5d6a7d;
+  --text-4: #414c5c;
+
+  /* ---- 主色（克制使用：关键数字、选中态、当前状态）---- */
+  --accent: #ffd60a;
+  --accent-soft: rgba(255, 214, 10, 0.13);
+  --accent-line: rgba(255, 214, 10, 0.34);
+  --accent-ink: #1a1600;
+
+  /* ---- 次级色 ---- */
+  --teal: #5eead4;
+  --teal-soft: rgba(94, 234, 212, 0.12);
+
+  /* ---- 语义色 ---- */
+  --ok: #46d39a;
+  --ok-soft: rgba(70, 211, 154, 0.13);
+  --warn: #f0b429;
+  --warn-soft: rgba(240, 180, 41, 0.14);
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255, 107, 107, 0.13);
+  --info: #5aa9f7;
+  --info-soft: rgba(90, 169, 247, 0.13);
+  --muted-soft: rgba(145, 159, 180, 0.11);
+
+  /* ---- 字体 ---- */
+  --font-mono: "JetBrains Mono", "Cascadia Mono", "Cascadia Code", "SFMono-Regular",
+    Consolas, "Liberation Mono", Menlo, ui-monospace, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC",
+    sans-serif;
+
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-21: 21px;
+  --fs-26: 26px;
+  --fs-34: 34px;
+
+  /* ---- 间距 ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+
+  /* ---- 圆角 ---- */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 13px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  /* ---- 阴影（深色下用暗影 + 内高光，不用发光）---- */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 6px 18px -6px rgba(0, 0, 0, 0.62);
+  --shadow-3: 0 22px 60px -18px rgba(0, 0, 0, 0.78);
+  --inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
+  /* ---- 层级 ---- */
+  --z-sidebar: 20;
+  --z-sticky: 30;
+  --z-drawer: 60;
+  --z-modal: 70;
+  --z-toast: 90;
+
+  /* ---- 动效 ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-1: 110ms;
+  --dur-2: 190ms;
+  --dur-3: 320ms;
+  --dur-4: 460ms;
+
+  /* ---- 布局尺寸 ---- */
+  --sidebar-w: 248px;
+  --header-h: 58px;
+  --content-max: 1240px;
+}
+
+/* 减少动效偏好：整体降级为近乎静态 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0.01ms;
+    --dur-2: 0.01ms;
+    --dur-3: 0.01ms;
+    --dur-4: 0.01ms;
+  }
+}

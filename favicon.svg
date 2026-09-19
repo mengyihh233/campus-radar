@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Campus Radar">
+  <rect width="32" height="32" rx="7" fill="#0b0e14"/>
+  <circle cx="16" cy="16" r="10" fill="none" stroke="#2a3341" stroke-width="1.4"/>
+  <circle cx="16" cy="16" r="5.5" fill="none" stroke="#2a3341" stroke-width="1.4"/>
+  <path d="M16 16 L16 6 A10 10 0 0 1 25 11.8 Z" fill="#ffd60a" fill-opacity="0.9"/>
+  <circle cx="16" cy="16" r="2" fill="#ffd60a"/>
+</svg>

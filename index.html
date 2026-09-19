@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Campus Radar 校园机会雷达：把多来源、质量不一的校园活动与机会信息，整理成「现在该做什么」的清晰判断。含学生投稿审核与管理端。"
+    />
+    <title>Campus Radar · 校园机会雷达</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+
+    <!-- 全部使用相对路径，以便部署到 GitHub Pages 的子目录下也能正确加载 -->
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/base.css" />
+    <link rel="stylesheet" href="./src/styles/app.css" />
+    <link rel="stylesheet" href="./src/styles/views.css" />
+
+    <script>
+      /**
+       * 运行模式配置。
+       *
+       * 'local'（默认）—— 纯静态模式。数据保存在浏览器 localStorage，
+       *   不需要任何服务器，可直接部署到 GitHub Pages 或双击打开。
+       *   账号登录、投稿审核、举报、收藏等功能完整可用，
+       *   但数据不会跨设备同步，清除浏览器数据会重置。
+       *
+       * 'remote' —— 前后端分离模式。需要额外填写下面的后端地址，
+       *   后端为 EdgeOne Makers 云函数 + Blob 存储。
+       *   注意：EdgeOne 的 .edgeone.cool 预览域名需要访问令牌，
+       *   直接跨域调用会返回 401，如需使用请绑定自有域名。
+       */
+      window.__CAMPUS_RADAR_MODE__ = 'local';
+
+      /** 仅在 remote 模式下需要填写，例如 'https://your-backend.example.com' */
+      window.__CAMPUS_RADAR_API_BASE__ = '';
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <div id="app" class="app">
+      <header id="app-header" class="app-header"></header>
+      <div class="app-body">
+        <aside id="app-sidebar" class="app-sidebar" aria-label="筛选"></aside>
+        <main id="main" class="app-main" tabindex="-1"></main>
+      </div>
+    </div>
+
+    <div id="drawer-root"></div>
+    <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="false"></div>
+
+    <noscript>
+      <div class="noscript">Campus Radar 需要启用 JavaScript 才能运行。</div>
+    </noscript>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
