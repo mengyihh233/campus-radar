@@ -121,6 +121,7 @@ function footFlags(item) {
 export function cardTemplate(item, index, ctx) {
   const faved = ctx.favorites.includes(item.id);
   const risky = item.riskLevel === 'danger' ? ' is-risky' : '';
+  const enter = ctx.animate === false ? '' : ' enter';
   const next = item._status.next;
   const showCountdown = next && next.at > ctx.now;
 
@@ -138,7 +139,7 @@ export function cardTemplate(item, index, ctx) {
 
   return `
     <article
-      class="card enter${risky}"
+      class="card${enter}${risky}"
       data-action="open"
       data-id="${esc(item.id)}"
       role="button"
@@ -154,14 +155,14 @@ export function cardTemplate(item, index, ctx) {
         <div class="card__actions">
           <button
             type="button"
-            class="icon-btn"
+            class="icon-btn icon-btn--star"
             data-action="favorite"
             data-id="${esc(item.id)}"
             aria-pressed="${faved}"
             aria-label="${faved ? '取消收藏' : '加入清单'}"
             title="${faved ? '取消收藏' : '加入清单'}"
           >
-            ${icon('star', 15)}
+            ${icon('star', 16, { fill: faved })}
           </button>
         </div>
       </div>
@@ -190,11 +191,12 @@ export function timelineItemTemplate(item, index, ctx) {
   const timeText = start ? formatClock(start) : '待定';
   const tbdClass = start ? '' : ' tl-item__time--tbd';
   const faved = ctx.favorites.includes(item.id);
+  const enter = ctx.animate === false ? '' : ' enter';
 
   return `
     <button
       type="button"
-      class="tl-item enter"
+      class="tl-item${enter}"
       data-action="open"
       data-id="${esc(item.id)}"
       style="--i:${index}"

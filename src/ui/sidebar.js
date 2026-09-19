@@ -12,6 +12,7 @@ import { state, toggleFilter, setFilters } from '../core/store.js';
 import { decorateAll, buildFacets } from '../core/derive.js';
 import { icon } from './icons.js';
 import { render, delegate, esc } from './dom.js';
+import { IS_LOCAL } from '../config.js';
 import {
   SOURCES,
   SOURCE_ORDER,
@@ -82,6 +83,11 @@ function template() {
   const { activities, ui } = state;
   const decorated = decorateAll(activities, ui.now);
   const facets = buildFacets(decorated);
+
+  const modeLabel = IS_LOCAL ? '数据保存在本机' : '数据保存在云端';
+  const modeDesc = IS_LOCAL
+    ? '账号、投稿、审核记录都存在当前浏览器中，不会上传到任何服务器。清除浏览器数据会回到初始状态。'
+    : '账号与内容由远端服务统一保存，可跨设备同步。';
 
   const quickOptions = QUICK_FILTERS.map((q) => ({
     key: q.key,
@@ -162,8 +168,11 @@ function template() {
 
     <div class="sidebar-note">
       <strong>关于信息来源</strong><br />
-      校方与学院发布的信息经过统一渠道下发；同学发布的内容由学生自主提交，平台仅做基础核验。
+      校方与学院发布的信息经过统一渠道下发；同学发布的内容由学生自主提交，平台会先做风险扫描再人工审核。
       遇到要求添加私人微信、承诺「零门槛日结」的内容，请保持警惕。
+      <br /><br />
+      <strong>${esc(modeLabel)}</strong><br />
+      ${esc(modeDesc)}
     </div>
   `;
 }

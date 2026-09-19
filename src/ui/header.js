@@ -81,6 +81,18 @@ function template() {
 
       <button
         type="button"
+        class="btn btn--icon"
+        data-action="toggle-theme"
+        aria-pressed="false"
+        aria-label="切换浅色 / 深色"
+        title="切换浅色 / 深色"
+      >
+        <span class="theme-icon theme-icon--light">${icon('sun', 15)}</span>
+        <span class="theme-icon theme-icon--dark">${icon('moon', 15)}</span>
+      </button>
+
+      <button
+        type="button"
         class="switch"
         data-action="toggle-freshman"
         aria-pressed="${ui.freshmanMode}"
@@ -147,6 +159,10 @@ export function mountHeader(root, handlers = {}) {
         handlers.onFreshmanChange?.(next);
         break;
       }
+
+      case 'toggle-theme':
+        handlers.onToggleTheme?.();
+        break;
 
       case 'open-auth':
         handlers.onAuth?.();

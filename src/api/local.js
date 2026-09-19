@@ -50,12 +50,28 @@ function toHex(buffer) {
   return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * Web Crypto 只在安全上下文中可用（https、localhost、file://）。
+ * 若不可用则给出可执行的指引，而不是抛一个用户看不懂的 TypeError。
+ */
+function requireWebCrypto() {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) {
+    throw new ApiError(
+      '当前环境不支持 Web Crypto，无法安全处理密码。请通过 https 或 http://localhost 访问本页面。',
+      { status: 0, code: 'NO_WEBCRYPTO' }
+    );
+  }
+  return subtle;
+}
+
 async function hashPassword(password, salt) {
+  const subtle = requireWebCrypto();
   const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, [
+  const key = await subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, [
     'deriveBits',
   ]);
-  const bits = await crypto.subtle.deriveBits(
+  const bits = await subtle.deriveBits(
     {
       name: 'PBKDF2',
       salt: encoder.encode(salt),
@@ -69,8 +85,15 @@ async function hashPassword(password, salt) {
 }
 
 function randomId(bytes = 16) {
+  const source = globalThis.crypto;
+  if (!source?.getRandomValues) {
+    // 极老的浏览器兜底：仅用于生成非敏感的会话标识
+    return Array.from({ length: bytes * 2 }, () => Math.floor(Math.random() * 16).toString(16)).join(
+      ''
+    );
+  }
   const buffer = new Uint8Array(bytes);
-  crypto.getRandomValues(buffer);
+  source.getRandomValues(buffer);
   return toHex(buffer);
 }
 

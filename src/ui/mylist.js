@@ -1,9 +1,13 @@
 /**
  * ui/mylist.js — 我的清单
  *
- * 不只是「收藏列表」：这里做时间冲突检测。
+ * 不只是「收藏列表」：这里同时做时间冲突检测。
  * 材料里 9月21日 19:00—20:30 撞了三场活动，
  * 如果都加入了清单，这里会直接告诉用户撞车了。
+ *
+ * 结构说明：列表行拆成「可点击主体」+「独立操作区」两部分，
+ * 而不是把星标按钮嵌在一个大 button 里 —— 交互元素嵌套会让键盘
+ * 用户无法用 Enter 触发收藏，也会让焦点落在两个互相包含的元素上。
  */
 
 import { state } from '../core/store.js';
@@ -11,11 +15,30 @@ import { decorateAll } from '../core/derive.js';
 import { findConflicts, groupConflictsByDay } from '../core/conflict.js';
 import { icon } from './icons.js';
 import { esc } from './dom.js';
-import { formatFull, formatClock, formatDate, stamp } from '../core/time.js';
+import { formatFull, formatClock, formatDate, stamp, dayLabel } from '../core/time.js';
 import { statusBadge, sourceBadge, emptyState } from './card.js';
 
-/** 冲突提醒区块 */
-function conflictSectionHtml(conflicts) {
+/* ==========================================================================
+ * 区块标题
+ * ========================================================================== */
+
+function blockHead({ iconName, tone = 'accent', title, count, hint }) {
+  return `
+    <div class="block-head">
+      <span class="block-head__mark block-head__mark--${tone}">${icon(iconName, 14)}</span>
+      <h2 class="block-head__title">${esc(title)}</h2>
+      ${count !== undefined ? `<span class="block-head__count">${count}</span>` : ''}
+      <span class="block-head__line"></span>
+      ${hint ? `<span class="block-head__hint">${esc(hint)}</span>` : ''}
+    </div>
+  `;
+}
+
+/* ==========================================================================
+ * 时间冲突
+ * ========================================================================== */
+
+function conflictBlock(conflicts) {
   if (!conflicts.length) return '';
 
   const groups = groupConflictsByDay(conflicts);
@@ -23,98 +46,133 @@ function conflictSectionHtml(conflicts) {
   const groupsHtml = groups
     .map(
       (group) => `
-      <div class="conflict-card">
-        <div class="conflict-card__head">
-          ${icon('alert', 15)}
-          <span>${esc(formatDate(group.date))} 有 ${group.items.length} 场活动时间重叠</span>
-          <span class="toolbar__spacer"></span>
-          <span class="conflict-card__when">${esc(group.dayKey)}</span>
+      <div class="conflict">
+        <div class="conflict__head">
+          <span class="conflict__date">${esc(formatDate(group.date))}</span>
+          <span class="conflict__label">${esc(dayLabel(group.date, Date.now()) || '')}</span>
+          <span class="conflict__badge">${group.items.length} 场重叠</span>
         </div>
-        ${group.conflicts
-          .map(
-            (c) => `
-          <div class="conflict-pair">
-            <button type="button" class="conflict-pair__item" data-action="open" data-id="${esc(c.a.id)}">
-              <span class="conflict-pair__time">${esc(
-                c.a.start ? formatClock(c.a.start) : '待定'
-              )}</span>
-              <span class="conflict-pair__title">${esc(c.a.title)}</span>
-            </button>
-            <button type="button" class="conflict-pair__item" data-action="open" data-id="${esc(c.b.id)}">
-              <span class="conflict-pair__time">${esc(
-                c.b.start ? formatClock(c.b.start) : '待定'
-              )}</span>
-              <span class="conflict-pair__title">${esc(c.b.title)}</span>
-            </button>
-            ${
-              c.estimated
-                ? `<span class="field__hint">${icon('info', 11)} 其中至少一场未给出结束时间，按 90 分钟估算。</span>`
-                : ''
-            }
-          </div>
-        `
-          )
-          .join('')}
+        <div class="conflict__pairs">
+          ${group.conflicts
+            .map(
+              (c) => `
+            <div class="conflict-pair">
+              <button type="button" class="conflict-pair__item" data-action="open" data-id="${esc(
+                c.a.id
+              )}">
+                <span class="conflict-pair__time">${esc(
+                  c.a.start ? formatClock(c.a.start) : '待定'
+                )}</span>
+                <span class="conflict-pair__title">${esc(c.a.title)}</span>
+              </button>
+              <span class="conflict-pair__vs">撞车</span>
+              <button type="button" class="conflict-pair__item" data-action="open" data-id="${esc(
+                c.b.id
+              )}">
+                <span class="conflict-pair__time">${esc(
+                  c.b.start ? formatClock(c.b.start) : '待定'
+                )}</span>
+                <span class="conflict-pair__title">${esc(c.b.title)}</span>
+              </button>
+              ${
+                c.estimated
+                  ? `<span class="conflict-pair__note">${icon(
+                      'info',
+                      11
+                    )}<span>其中至少一场未给出结束时间，按 90 分钟估算</span></span>`
+                  : ''
+              }
+            </div>
+          `
+            )
+            .join('')}
+        </div>
       </div>
     `
     )
     .join('');
 
   return `
-    <div class="slot">
-      <div class="slot__head">
-        <span class="slot__title">${icon('alert', 15)}时间冲突提醒</span>
-        <span class="slot__count">${conflicts.length} 组</span>
-        <span class="slot__line"></span>
+    <section class="block">
+      ${blockHead({
+        iconName: 'alert',
+        tone: 'warn',
+        title: '时间冲突提醒',
+        count: `${conflicts.length} 组`,
+        hint: '校园活动大多不支持补看，建议提前取舍',
+      })}
+      <div class="conflict-list">${groupsHtml}</div>
+    </section>
+  `;
+}
+
+/* ==========================================================================
+ * 清单行
+ * ========================================================================== */
+
+function rowTemplate(item, ctx) {
+  const next = item._status.next;
+  const showCountdown = next && next.at > ctx.now;
+  const faved = ctx.favorites.includes(item.id);
+
+  return `
+    <div class="row" style="--state-color:${esc(item._status.color)}">
+      <span class="row__bar" aria-hidden="true"></span>
+
+      <button type="button" class="row__main" data-action="open" data-id="${esc(item.id)}">
+        <span class="row__title">${esc(item.title)}</span>
+        <span class="row__meta">
+          <span class="row__meta-item">${icon('clock', 12)}<span>${esc(
+            item._time || '时间未注明'
+          )}</span></span>
+          ${
+            item.place
+              ? `<span class="row__meta-item">${icon('map-pin', 12)}<span>${esc(
+                  item.place
+                )}</span></span>`
+              : ''
+          }
+          ${
+            showCountdown
+              ? `<span class="row__meta-item row__meta-item--urgent">${icon('bolt', 12)}<span>${esc(
+                  next.label
+                )} ${esc(item._status.countdown?.text || '')}</span></span>`
+              : ''
+          }
+        </span>
+      </button>
+
+      <div class="row__tail">
+        ${statusBadge(item)}
+        <button
+          type="button"
+          class="icon-btn icon-btn--star"
+          data-action="favorite"
+          data-id="${esc(item.id)}"
+          aria-pressed="${faved}"
+          aria-label="${faved ? '从清单移除' : '加入清单'}"
+          title="${faved ? '从清单移除' : '加入清单'}"
+        >
+          ${icon('star', 16, { fill: faved })}
+        </button>
       </div>
-      <p class="field__hint" style="margin:-8px 0 12px">
-        下面这些信息的时间段有重叠。校园活动大多不支持补看，建议提前取舍。
-      </p>
-      ${groupsHtml}
     </div>
   `;
 }
 
-/** 收藏行 */
-function rowHtml(item, ctx) {
-  const next = item._status.next;
-  const showCd = next && next.at > ctx.now;
+/* ==========================================================================
+ * 我发布的投稿
+ * ========================================================================== */
 
-  return `
-    <button
-      type="button"
-      class="row-item"
-      data-action="open"
-      data-id="${esc(item.id)}"
-      style="--state-color:${esc(item._status.color)}"
-    >
-      <span class="row-item__state"></span>
-      <span class="row-item__body">
-        <span class="row-item__title">${esc(item.title)}</span>
-        <span class="row-item__meta">
-          ${item._time ? `<span>${esc(item._time)}</span>` : '<span>时间未注明</span>'}
-          ${item.place ? `<span class="tl-item__dot"></span><span>${esc(item.place)}</span>` : ''}
-          ${
-            showCd
-              ? `<span class="tl-item__dot"></span><span class="countdown">${esc(
-                  next.label
-                )} ${esc(item._status.countdown?.text || '')}</span>`
-              : ''
-          }
-        </span>
-      </span>
-      <span class="row-item__right">
-        ${statusBadge(item)}
-        <span class="icon-btn" data-action="favorite" data-id="${esc(item.id)}" role="button" tabindex="0" aria-label="取消收藏" aria-pressed="true">
-          ${icon('star', 15)}
-        </span>
-      </span>
-    </button>
-  `;
-}
+const REVIEW_STYLE = {
+  approved: { label: '已通过 · 已上架', tone: 'ok', icon: 'check' },
+  pending: { label: '待审核', tone: 'warn', icon: 'clock' },
+  needs_info: { label: '需要补充材料', tone: 'info', icon: 'help' },
+  rejected: { label: '已驳回', tone: 'danger', icon: 'x' },
+  removed: { label: '已下架', tone: 'danger', icon: 'trash' },
+};
 
-/** 我发布的投稿，含审核状态与驳回理由 */
-function myPostsSection() {
+function myPostsBlock() {
   const viewer = state.viewer;
   if (!viewer) return '';
 
@@ -126,48 +184,46 @@ function myPostsSection() {
 
   const rows = mine
     .map((item) => {
-      const statusMap = {
-        approved: { label: '已通过 · 已上架', tone: 'ok', icon: 'check' },
-        pending: { label: '待审核', tone: 'warn', icon: 'clock' },
-        needs_info: { label: '需要补充材料', tone: 'info', icon: 'help' },
-        rejected: { label: '已驳回', tone: 'danger', icon: 'x' },
-        removed: { label: '已下架', tone: 'danger', icon: 'trash' },
-      };
-      const status = statusMap[item.reviewStatus] || statusMap.pending;
+      const status = REVIEW_STYLE[item.reviewStatus] || REVIEW_STYLE.pending;
+      const editable = ['pending', 'needs_info', 'rejected'].includes(item.reviewStatus);
 
       return `
-        <div class="mypost">
-          <div class="mypost__body">
-            <button type="button" class="mypost__title" data-action="open" data-id="${esc(
+        <div class="post-row">
+          <div class="post-row__body">
+            <button type="button" class="post-row__title" data-action="open" data-id="${esc(
               item.id
-            )}" style="text-align:left">${esc(item.title)}</button>
-            <div class="mypost__meta">
-              <span class="badge badge--${status.tone}">${icon(status.icon, 11)}${esc(status.label)}</span>
-              ${item.createdAt ? `<span>提交于 ${esc(stamp(item.createdAt))}</span>` : ''}
+            )}">${esc(item.title)}</button>
+            <div class="post-row__meta">
+              <span class="badge badge--${status.tone}">${icon(status.icon, 11)}${esc(
+                status.label
+              )}</span>
+              ${item.createdAt ? `<span class="post-row__time">${esc(stamp(item.createdAt))}</span>` : ''}
               ${
                 item.reviewerName
-                  ? `<span>处理人：${esc(item.reviewerName)}</span>`
+                  ? `<span class="post-row__time">处理人 ${esc(item.reviewerName)}</span>`
                   : ''
               }
             </div>
             ${
               item.reviewNote
-                ? `<div class="mypost__note">处理意见：${esc(item.reviewNote)}</div>`
+                ? `<div class="post-row__note">${icon('info', 12)}<span>${esc(
+                    item.reviewNote
+                  )}</span></div>`
                 : ''
             }
           </div>
-          <div class="row-item__right">
+          <div class="post-row__actions">
             <button type="button" class="btn btn--sm" data-action="open" data-id="${esc(
               item.id
             )}">查看</button>
             ${
-              ['pending', 'needs_info', 'rejected'].includes(item.reviewStatus)
+              editable
                 ? `<button type="button" class="btn btn--sm" data-action="edit-post" data-id="${esc(
                     item.id
                   )}">修改</button>
                    <button type="button" class="btn btn--sm btn--danger" data-action="delete-post" data-id="${esc(
                      item.id
-                   )}">删除</button>`
+                   )}" aria-label="删除">${icon('trash', 13)}</button>`
                 : ''
             }
           </div>
@@ -177,22 +233,28 @@ function myPostsSection() {
     .join('');
 
   return `
-    <div class="slot">
-      <div class="slot__head">
-        <span class="slot__title">${icon('file', 15)}我发布的投稿</span>
-        <span class="slot__count">${mine.length} 条</span>
-        <span class="slot__line"></span>
-      </div>
-      <div class="rowlist" style="display:block">${rows}</div>
-    </div>
+    <section class="block">
+      ${blockHead({
+        iconName: 'file',
+        tone: 'info',
+        title: '我发布的投稿',
+        count: `${mine.length} 条`,
+        hint: '未通过的内容只有你自己可见',
+      })}
+      <div class="post-list">${rows}</div>
+    </section>
   `;
 }
+
+/* ==========================================================================
+ * 视图
+ * ========================================================================== */
 
 export function mylistView() {
   const ctx = { now: state.ui.now, favorites: state.favorites };
   const decorated = decorateAll(state.activities, ctx.now);
   const saved = decorated.filter((item) => state.favorites.includes(item.id));
-  const myPostsHtml = myPostsSection();
+  const myPostsHtml = myPostsBlock();
 
   if (!saved.length) {
     return `
@@ -223,27 +285,22 @@ export function mylistView() {
 
   return `
     <div class="mylist">
-      ${conflictSectionHtml(conflicts)}
+      ${conflictBlock(conflicts)}
 
-      <div class="slot">
-        <div class="slot__head">
-          <span class="slot__title">${icon('star', 15)}已加入清单</span>
-          <span class="slot__count">${sorted.length} 条</span>
-          <span class="slot__line"></span>
-          ${
-            urgent.length
-              ? `<span class="badge badge--warn">${icon('clock', 11)}${urgent.length} 条 24 小时内到期</span>`
-              : ''
-          }
-        </div>
-        <div class="rowlist">
-          ${sorted.map((item) => rowHtml(item, ctx)).join('')}
-        </div>
-      </div>
+      <section class="block">
+        ${blockHead({
+          iconName: 'star',
+          tone: 'accent',
+          title: '已加入清单',
+          count: `${sorted.length} 条`,
+          hint: urgent.length
+            ? `${urgent.length} 条 24 小时内到期`
+            : '按最近的截止时间排序',
+        })}
+        <div class="rows">${sorted.map((item) => rowTemplate(item, ctx)).join('')}</div>
+      </section>
 
       ${myPostsHtml}
     </div>
   `;
 }
-
-export { formatFull };

@@ -217,12 +217,13 @@ campus-radar/
 ├── cloud-functions/               remote 模式的服务端（可选，不部署也能用）
 └── tools/
     ├── gen-seed.mjs               由前端数据生成服务端种子
-    ├── check-imports.mjs          模块引用静态校验
+    ├── check-imports.mjs          校验相对模块路径是否存在
+    ├── check-exports.mjs          校验具名导入是否真实导出
     ├── e2e-local.mjs              纯静态模式端到端验收测试（65 项）
     └── e2e-test.mjs               remote 模式端到端验收测试（49 项）
 ```
 
-### 验收测试
+### 验收测试与静态检查
 
 ```bash
 # 纯静态模式：注入内存 localStorage，直接跑完整业务链路
@@ -230,9 +231,15 @@ node tools/e2e-local.mjs
 
 # remote 模式：需要先启动后端
 node tools/e2e-test.mjs
+
+# 提交前的两项静态检查，可提前拦住「运行时才报错」的白屏类问题
+node tools/check-imports.mjs
+node tools/check-exports.mjs
 ```
 
 覆盖范围：权限隔离、错误密码拒绝、高风险内容拦截、投稿审核闭环、驳回后修改再提交、举报闭环、收藏持久化、下架权限、数据重置。
+
+静态检查的意义：ES Modules 在 import 一个不存在的导出时不会报错，而是在运行到那一行才抛出难以定位的异常（甚至把 `undefined` 静默传给下游）。这两个脚本把「路径存在」与「名字存在」分开校验，共覆盖 125 条导入、234 个具名引用。
 
 ---
 

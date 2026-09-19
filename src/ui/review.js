@@ -230,7 +230,9 @@ function reviewCard(item, ctx) {
   );
 
   return `
-    <article class="review-card" style="--state-color:${esc(decorated._status.color)}">
+    <article class="review-card${state.ui.animate === false ? '' : ' enter'}" style="--state-color:${esc(
+      decorated._status.color
+    )}">
       <div class="review-card__head">
         <div class="card__badges">
           ${statusBadge(decorated)}

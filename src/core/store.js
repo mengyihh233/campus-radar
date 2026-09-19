@@ -21,6 +21,13 @@ const UI_DEFAULTS = () => ({
   freshmanMode: false,
   sidebarOpen: false,
   now: Date.now(),
+  theme: null, // light | dark；null 表示尚未加载
+  /**
+   * 是否播放入场动画。
+   * 只在切换视图时为 true —— 否则每次收藏、筛选都会重建列表并重播动画，
+   * 界面会不停地闪。
+   */
+  animate: true,
 });
 
 export const state = {

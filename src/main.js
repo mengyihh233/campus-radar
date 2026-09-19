@@ -41,6 +41,30 @@ let lastRenderedView = null;
 let nowTimer = null;
 
 /* ==========================================================================
+ * 主题
+ * ========================================================================== */
+
+function readTheme() {
+  const attr = document.documentElement.getAttribute('data-theme');
+  return attr === 'dark' ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  setUI({ theme });
+  try {
+    localStorage.setItem('campus-radar.theme', theme);
+  } catch {
+    /* 忽略 */
+  }
+}
+
+function toggleTheme() {
+  const next = readTheme() === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+}
+
+/* ==========================================================================
  * 数据
  * ========================================================================== */
 
@@ -111,14 +135,18 @@ function renderErrorState() {
     `
     <div class="empty">
       <span class="empty__icon">${icon('alert', 26)}</span>
-      <span class="empty__title">无法连接后端服务</span>
+      <span class="empty__title">数据加载失败</span>
       <p class="empty__text">
-        ${esc(state.error || '未知错误')}<br /><br />
-        本应用的数据保存在 EdgeOne Makers 的云端存储中，需要通过平台提供的开发服务器访问。
-        请在项目根目录执行 <code class="mono">edgeone makers dev -n campus-radar</code>，
-        然后访问 <code class="mono">http://127.0.0.1:8088/</code>。
+        ${esc(state.error || '未知错误')}
+        <br /><br />
+        如果当前是本机演示模式，通常是因为浏览器禁用了本地存储或 Web Crypto。
+        可以尝试：换用 Chrome / Edge 打开、退出无痕模式、或通过
+        <code class="mono">http://localhost</code> 访问而不是直接双击文件。
       </p>
-      <button type="button" class="btn btn--primary" data-action="retry">${icon('refresh', 14)}<span>重试连接</span></button>
+      <button type="button" class="btn btn--primary" data-action="retry">${icon(
+        'refresh',
+        14
+      )}<span>重试</span></button>
     </div>
   `
   );
@@ -671,6 +699,7 @@ function mountShell() {
       renderMain();
       sidebarApi?.refresh();
     },
+    onToggleTheme: toggleTheme,
   });
 
   sidebarApi = mountSidebar(sidebar, {
@@ -694,6 +723,10 @@ function mountShell() {
     if (state.ui.view === 'publish' && lastRenderedView === 'publish') {
       return;
     }
+
+    // 只在切换视图时播放入场动画。
+    // 收藏、筛选、排序同样会重建列表，若每次都重播动画，界面会持续闪烁。
+    state.ui.animate = state.ui.view !== lastRenderedView;
 
     renderMain();
   });

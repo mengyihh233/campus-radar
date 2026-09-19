@@ -214,6 +214,7 @@ export function discoverView() {
   const ctx = {
     favorites: state.favorites,
     now: state.ui.now,
+    animate: state.ui.animate,
   };
 
   const content =

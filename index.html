@@ -3,13 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="dark" />
-    <meta
-      name="description"
-      content="Campus Radar 校园机会雷达：把多来源、质量不一的校园活动与机会信息，整理成「现在该做什么」的清晰判断。含学生投稿审核与管理端。"
-    />
+    <meta name="description" content="Campus Radar 校园机会雷达：把多来源、质量不一的校园活动与机会信息，整理成「现在该做什么」的清晰判断。含学生投稿审核与管理端。" />
     <title>Campus Radar · 校园机会雷达</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+
+    <script>
+      // 主题必须在样式表之前确定，否则会先渲染默认色再跳变
+      (function () {
+        var theme = 'light';
+        try {
+          var saved = localStorage.getItem('campus-radar.theme');
+          if (saved === 'light' || saved === 'dark') theme = saved;
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
 
     <!-- 全部使用相对路径，以便部署到 GitHub Pages 的子目录下也能正确加载 -->
     <link rel="stylesheet" href="./src/styles/tokens.css" />

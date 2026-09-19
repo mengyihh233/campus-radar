@@ -10,13 +10,16 @@
 .user-chip {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   padding: 4px 10px 4px 5px;
   border: 1px solid var(--border-2);
   border-radius: var(--r-pill);
   background: var(--surface);
+  box-shadow: var(--inset-top);
   cursor: pointer;
-  transition: border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
 }
 
 .user-chip:hover {
@@ -27,38 +30,44 @@
 .user-chip__avatar {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 23px;
+  height: 23px;
   border-radius: 50%;
   font-family: var(--font-mono);
   font-size: var(--fs-11);
   font-weight: 700;
   flex-shrink: 0;
+  border: 1px solid transparent;
 }
 
 .user-chip__avatar--guest {
   background: var(--surface-3);
+  border-color: var(--border-2);
   color: var(--text-2);
 }
 
 .user-chip__avatar--student {
   background: var(--teal-soft);
+  border-color: var(--teal-line);
   color: var(--teal);
 }
 
 .user-chip__avatar--admin {
   background: var(--accent-soft);
+  border-color: var(--accent-line);
   color: var(--accent);
 }
 
 .user-chip__avatar--school {
   background: var(--info-soft);
+  border-color: var(--info-line);
   color: var(--info);
 }
 
 .user-chip__name {
   font-size: var(--fs-12);
   color: var(--text);
+  font-weight: 500;
   max-width: 108px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -67,7 +76,7 @@
 
 .user-chip__role {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-10);
   padding: 1px 6px;
   border-radius: var(--r-pill);
   background: var(--surface-3);
@@ -75,29 +84,7 @@
 }
 
 /* ============================================================================
-   2. 侧栏头部
-   ========================================================================== */
-
-.sidebar-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-4);
-  padding-bottom: var(--sp-3);
-  border-bottom: 1px solid var(--border);
-}
-
-.sidebar-head__title {
-  font-family: var(--font-mono);
-  font-size: var(--fs-12);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--text-2);
-}
-
-/* ============================================================================
-   3. 审核台
+   2. 审核台
    ========================================================================== */
 
 .review-list {
@@ -116,7 +103,12 @@
   border-left: 3px solid var(--state-color, var(--border-2));
   border-radius: var(--r-md);
   box-shadow: var(--inset-top);
-  animation: enter-up var(--dur-3) var(--ease-out) both;
+  transition: border-color var(--dur-2) var(--ease-out);
+}
+
+.review-card:hover {
+  border-color: var(--border-2);
+  border-left-color: var(--state-color, var(--border-2));
 }
 
 .review-card__head {
@@ -126,14 +118,15 @@
 
 .review-card__title {
   font-size: var(--fs-15);
-  font-weight: 600;
+  font-weight: 650;
   color: var(--text);
-  line-height: 1.45;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
 }
 
 .review-card__summary {
   font-size: var(--fs-12);
-  line-height: 1.7;
+  line-height: var(--lh-loose);
   color: var(--text-3);
 }
 
@@ -176,7 +169,7 @@
 }
 
 /* ============================================================================
-   4. 管理概览
+   3. 管理概览
    ========================================================================== */
 
 .dashboard {
@@ -187,33 +180,57 @@
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
   gap: var(--sp-3);
 }
 
 .metric {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
   padding: var(--sp-4);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   box-shadow: var(--inset-top);
+  overflow: hidden;
+}
+
+.metric::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border-2);
 }
 
 .metric--warn {
-  border-color: rgba(240, 180, 41, 0.32);
-  background: linear-gradient(180deg, rgba(240, 180, 41, 0.07) 0%, var(--surface) 62%);
+  border-color: var(--warn-line);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.05) 0%, var(--surface) 58%);
+}
+
+.metric--warn::after {
+  background: var(--warn);
 }
 
 .metric--danger {
-  border-color: rgba(255, 107, 107, 0.32);
-  background: linear-gradient(180deg, rgba(255, 107, 107, 0.07) 0%, var(--surface) 62%);
+  border-color: var(--danger-line);
+  background: linear-gradient(180deg, rgba(248, 113, 113, 0.05) 0%, var(--surface) 58%);
+}
+
+.metric--danger::after {
+  background: var(--danger);
 }
 
 .metric--ok {
-  border-color: rgba(70, 211, 154, 0.28);
+  border-color: var(--ok-line);
+}
+
+.metric--ok::after {
+  background: var(--ok);
 }
 
 .metric__top {
@@ -246,11 +263,11 @@
 
 .metric__value {
   font-family: var(--font-mono);
-  font-size: var(--fs-26);
+  font-size: var(--fs-29);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.05;
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
 }
 
 .metric__hint {
@@ -261,7 +278,7 @@
 
 .dist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(276px, 1fr));
   gap: var(--sp-3);
 }
 
@@ -271,9 +288,9 @@
 
 .dist__head {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-10);
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-3);
   margin-bottom: var(--sp-3);
@@ -299,7 +316,7 @@
   flex: 1;
   height: 5px;
   border-radius: var(--r-pill);
-  background: var(--surface-3);
+  background: var(--surface-4);
   overflow: hidden;
   min-width: 40px;
 }
@@ -308,12 +325,11 @@
   display: block;
   height: 100%;
   border-radius: var(--r-pill);
-  background: var(--accent);
-  opacity: 0.72;
+  background: linear-gradient(90deg, var(--accent) 0%, rgba(255, 214, 10, 0.4) 100%);
 }
 
 .dist-row__value {
-  flex: 0 0 62px;
+  flex: 0 0 64px;
   text-align: right;
   font-family: var(--font-mono);
   font-size: var(--fs-12);
@@ -322,8 +338,8 @@
 
 .dist-row__pct {
   color: var(--text-4);
-  margin-left: 5px;
-  font-size: var(--fs-11);
+  margin-left: 6px;
+  font-size: var(--fs-10);
 }
 
 /* 审计日志 */
@@ -338,9 +354,9 @@
   padding: var(--sp-4);
   border-bottom: 1px solid var(--border);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-10);
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-3);
 }
@@ -352,12 +368,17 @@
 
 .audit-row {
   display: grid;
-  grid-template-columns: 132px 128px 104px minmax(0, 1fr);
+  grid-template-columns: 138px 132px 106px minmax(0, 1fr);
   gap: var(--sp-3);
   align-items: baseline;
   padding: 9px var(--sp-4);
   font-size: var(--fs-12);
   border-bottom: 1px solid var(--border);
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.audit-row:hover {
+  background: var(--surface-2);
 }
 
 .audit-row:last-child {
@@ -366,7 +387,7 @@
 
 .audit-row__time {
   font-family: var(--font-mono);
-  font-size: var(--fs-11);
+  font-size: var(--fs-10);
   color: var(--text-4);
 }
 
@@ -382,7 +403,7 @@
 
 .audit-row__role {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-10);
   padding: 0 5px;
   border-radius: var(--r-pill);
   background: var(--surface-3);
@@ -402,7 +423,7 @@
 }
 
 /* ============================================================================
-   5. 弹层
+   4. 弹层
    ========================================================================== */
 
 .modal-layer {
@@ -417,14 +438,14 @@
 .modal {
   position: relative;
   z-index: 1;
-  width: min(480px, 100%);
+  width: min(486px, 100%);
   max-height: 86dvh;
   display: flex;
   flex-direction: column;
   background: var(--bg-elev);
   border: 1px solid var(--border-2);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--shadow-4), var(--inset-top-strong);
   animation: modal-in var(--dur-3) var(--ease-spring) both;
 }
 
@@ -457,8 +478,9 @@
   flex: 1;
   min-width: 0;
   font-size: var(--fs-15);
-  font-weight: 600;
+  font-weight: 650;
   color: var(--text);
+  letter-spacing: -0.01em;
 }
 
 .modal__body {
@@ -469,7 +491,7 @@
 
 .modal__lead {
   font-size: var(--fs-13);
-  line-height: 1.7;
+  line-height: var(--lh-loose);
   color: var(--text-2);
   margin-bottom: var(--sp-4);
 }
@@ -498,13 +520,16 @@
   padding: 9px 11px;
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
+  background: var(--surface);
   cursor: pointer;
-  transition: border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
 }
 
 .radio-row:hover {
   border-color: var(--border-3);
-  background: var(--surface);
+  background: var(--surface-2);
 }
 
 .radio-row:has(input:checked) {
@@ -525,7 +550,7 @@
 }
 
 /* ============================================================================
-   6. 登录 / 注册
+   5. 登录 / 注册
    ========================================================================== */
 
 .auth-tabs {
@@ -554,9 +579,9 @@
   gap: 6px;
   margin-bottom: var(--sp-3);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-10);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-3);
 }
@@ -569,15 +594,18 @@
 
 .demo-account {
   display: grid;
-  grid-template-columns: 56px 1fr auto;
+  grid-template-columns: 58px 1fr auto;
   gap: var(--sp-3);
   align-items: center;
-  padding: 9px 11px;
+  padding: 10px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
+  box-shadow: var(--inset-top);
   text-align: left;
-  transition: border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
 }
 
 .demo-account:hover {
@@ -587,20 +615,22 @@
 
 .demo-account__role {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-10);
   font-weight: 700;
-  padding: 2px 0;
+  padding: 3px 0;
   border-radius: var(--r-xs);
   text-align: center;
 }
 
 .demo-account__role--admin {
   background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
   color: var(--accent);
 }
 
 .demo-account__role--student {
   background: var(--teal-soft);
+  border: 1px solid var(--teal-line);
   color: var(--teal);
 }
 
@@ -615,32 +645,7 @@
 }
 
 /* ============================================================================
-   7. 我的投稿
-   ========================================================================== */
-
-.mypost__title {
-  font-size: var(--fs-13);
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.45;
-}
-
-.mypost__title:hover {
-  color: var(--accent);
-}
-
-.mypost__note {
-  padding: 7px 10px;
-  background: var(--warn-soft);
-  border-left: 2px solid var(--warn);
-  border-radius: var(--r-xs);
-  font-size: var(--fs-11);
-  line-height: 1.6;
-  color: var(--text-2);
-}
-
-/* ============================================================================
-   8. 其他
+   6. 其他
    ========================================================================== */
 
 code.mono,
@@ -652,13 +657,35 @@ code.mono,
   color: var(--accent);
 }
 
-/* 空态里的按钮 */
-.empty .btn {
-  margin-top: var(--sp-1);
+/* 运行模式提示 */
+.mode-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  margin-bottom: var(--sp-5);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--teal-line);
+  border-radius: var(--r-md);
+  font-size: var(--fs-11);
+  line-height: var(--lh-loose);
+  color: var(--text-3);
+}
+
+.mode-note__icon {
+  color: var(--teal);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mode-note strong {
+  color: var(--text-2);
+  font-weight: 600;
 }
 
 /* ============================================================================
-   9. 响应式补充
+   7. 响应式补充
    ========================================================================== */
 
 @media (max-width: 1023px) {
@@ -667,7 +694,7 @@ code.mono,
   }
 
   .user-chip {
-    padding: 4px 6px;
+    padding: 4px 7px;
   }
 }
 
@@ -703,7 +730,7 @@ code.mono,
   }
 
   .metric__value {
-    font-size: var(--fs-21);
+    font-size: var(--fs-23);
   }
 
   .dist-grid {
@@ -722,7 +749,7 @@ code.mono,
   }
 
   .demo-account {
-    grid-template-columns: 52px 1fr;
+    grid-template-columns: 54px 1fr;
   }
 
   .demo-account__cred {
